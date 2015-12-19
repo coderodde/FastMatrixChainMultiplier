@@ -8,7 +8,7 @@ import java.util.Arrays;
  * @author Rodion "rodde" Efremov
  * @version 1.6 (Dec 19, 2015)
  */
-public class Matrix {
+public class Matrix implements Cloneable {
     
     private final double[][] matrix;
     
@@ -50,7 +50,7 @@ public class Matrix {
         int thisHeight = getHeight();
         int otherWidth = rightHandMatrix.getWidth();
         
-        Matrix ret = new Matrix(thisHeight, otherWidth);
+        Matrix ret = new Matrix(otherWidth, thisHeight);
         
         for (int thisY = 0; thisY < thisHeight; ++thisY) {
             for (int otherX = 0; otherX < otherWidth; ++otherX) {
@@ -61,6 +61,20 @@ public class Matrix {
                 }
                 
                 ret.write(otherX, thisY, sum);
+            }
+        }
+        
+        return ret;
+    }
+    
+    public Matrix clone() {
+        Matrix ret = new Matrix(getWidth(), getHeight());
+        int width = getWidth();
+        int height = getHeight();
+       
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                ret.write(x, y, read(x, y));
             }
         }
         
@@ -141,7 +155,7 @@ public class Matrix {
     
     private void checkDimensions(Matrix rightHandMatrix) {
         if (this.getWidth() != rightHandMatrix.getHeight()) {
-            throw new IllegalArgumentException(
+            throw new IncompatibleMatrixException(
                     "Dimension mismatch. The number of columns in this " +
                     "matrix (" + getWidth() + ") does not equal the number " +
                     "of rows in the right hand matrix (" + 
