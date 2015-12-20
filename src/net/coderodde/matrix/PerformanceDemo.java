@@ -2,14 +2,16 @@ package net.coderodde.matrix;
 
 import java.util.Random;
 import net.coderodde.matrix.support.NaiveMatrixChainMultiplier;
+import net.coderodde.matrix.support.OptimalMatrixChainMultiplier;
 
 public class PerformanceDemo {
 
-    private static final int MATRIX_CHAIN_LENGTH = 30;
-    private static final int MAXIMUM_WIDTH = 300;
-    private static final int MAXIMUM_HEIGHT = 300;
-    private static final int MINIMUM_VALUE = -10;
-    private static final int MAXIMUM_VALUE = 10;
+    private static final int MATRIX_CHAIN_LENGTH = 10;
+    private static final int MAXIMUM_WIDTH = 500;
+    private static final int MAXIMUM_HEIGHT = 500;
+    private static final int MINIMUM_VALUE = -5;
+    private static final int MAXIMUM_VALUE = 5;
+    private static final double E = 0.001;
     
     public static void main(final String... args) {
         long seed = System.nanoTime();
@@ -23,6 +25,29 @@ public class PerformanceDemo {
         System.out.println("Seed = " + seed);
         
         Matrix result1 = profile(new NaiveMatrixChainMultiplier(), chain);
+        Matrix result2 = profile(new OptimalMatrixChainMultiplier(), chain);
+        
+        System.out.println("Matrices equal: " + equals(result1, result2, E));
+    }
+    
+    private static boolean equals(Matrix m1, Matrix m2, double e) {
+        if (m1.getWidth() != m2.getWidth()) {
+            return false;
+        }
+        
+        if (m1.getHeight() != m2.getHeight()) {
+            return false;
+        }
+        
+        for (int y = 0; y < m1.getHeight(); ++y) {
+            for (int x = 0; x < m1.getWidth(); ++x) {
+                if (Math.abs(m1.read(x, y) - m2.read(x, y)) > e) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
     
     private static Matrix profile(MatrixChainMultiplier multiplier, 
